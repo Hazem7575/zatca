@@ -1,0 +1,28 @@
+{
+    "name": "hazem/zatca",
+    "description": "ZATCA (Fatoora) e-invoicing implementation for Saudi Arabia",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Hazem\\Zatca\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Hazem",
+            "email": "hazem@example.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^7.4|^8.0",
+        "ext-openssl": "*",
+        "ext-json": "*",
+        "ext-dom": "*",
+        "ext-curl": "*",
+        "illuminate/support": "^8.0|^9.0|^10.0",
+        "illuminate/database": "^8.0|^9.0|^10.0",
+        "salla/zatca": "*"
+    }
+}
