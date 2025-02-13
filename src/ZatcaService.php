@@ -7,8 +7,8 @@ use Hazem\Zatca\Models\ZatcaDevice;
 use Hazem\Zatca\Services\ZatcaAPI;
 use Hazem\Zatca\Services\CSRGenerator;
 use Hazem\Zatca\Services\InvoiceSigner;
-use Hazem\Zatca\Services\InvoiceGenerator;
 use Hazem\Zatca\Services\ZatcaXMLGenerator;
+use Hazem\Zatca\Services\{InvoiceGenerator, ZatcaInvoiceService};
 
 class ZatcaService
 {
@@ -21,6 +21,10 @@ class ZatcaService
         $this->api = new ZatcaAPI($this->live);
     }
 
+    public function prepare()
+    {
+        return new ZatcaInvoiceService();
+    }
     public function registerDevice($businessId, $otp)
     {
         try {
