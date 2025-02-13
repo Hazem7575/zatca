@@ -22,10 +22,13 @@ class CreateDevice
             'otp' => 'required',
         ]);
 
-        $business = Business::find(auth()->user()->business_id);
+        $business = Store::find(auth()->user()->store_id);
         try {
             if($business->hasZatcaDevice()) {
-                return redirect()->back()->with('error', 'يوجد جهاز نشط بالفعل');
+                return response()->json([
+                    'success' => false,
+                    'msg' => 'يوجد جهاز نشط بالفعل'
+                ]);
             }
             $device = $business->registerZatcaDevice($request->otp, [
                 'vat_no' => $request->tax_number,
