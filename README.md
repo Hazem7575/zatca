@@ -67,7 +67,7 @@ Add the `HasZatcaDevice` trait to your model:
 ```php
 use Hazem\Zatca\Traits\HasZatcaDevice;
 
-class Order extends Model
+class Store extends Model
 {
     use HasZatcaDevice;
 }
@@ -76,12 +76,22 @@ class Order extends Model
 Register a new device:
 
 ```php
-$order = Order::find(1);
-$device = $order->registerZatcaDevice($otp, [
-    'vat_no' => '123456789',
-    'company_name' => 'My Company',
-    // ... other company data
-]);
+$device = $store->registerZatcaDevice($request->otp, [
+                'vat_no' => $request->tax_number,
+                'ci_no' => $request->registration_number,
+                'company_name' => $request->organization_name,
+                'company_address' => $request->registered_address,
+                'company_building' => $request->building_number,
+                'company_plot_identification' => $request->plot_identification,
+                'company_city_subdivision' => $request->city_sub_division,
+                'company_city' => $request->city,
+                'company_postal' => $request->postal_number,
+                'company_country' => 'SA',
+                'solution_name' => 'MADA',
+                'common_name' => $request->common_name,
+            ]);
+
+            $device->active();
 ```
 
 ### Invoice Creation
