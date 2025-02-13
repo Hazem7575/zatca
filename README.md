@@ -26,7 +26,7 @@ please visit our [documentation](https://raanh-1.gitbook.io/hazem-package).
 Install the package via Composer:
 
 ```bash
-composer require hazem/zatca
+composer require hazem7575/zatca
 ```
 
 ## Requirements
@@ -67,7 +67,7 @@ Add the `HasZatcaDevice` trait to your model:
 ```php
 use Hazem\Zatca\Traits\HasZatcaDevice;
 
-class Order extends Model
+class Store extends Model
 {
     use HasZatcaDevice;
 }
@@ -76,12 +76,22 @@ class Order extends Model
 Register a new device:
 
 ```php
-$order = Order::find(1);
-$device = $order->registerZatcaDevice($otp, [
-    'vat_no' => '123456789',
-    'company_name' => 'My Company',
-    // ... other company data
-]);
+$device = $store->registerZatcaDevice($request->otp, [
+                'vat_no' => $request->tax_number,
+                'ci_no' => $request->registration_number,
+                'company_name' => $request->organization_name,
+                'company_address' => $request->registered_address,
+                'company_building' => $request->building_number,
+                'company_plot_identification' => $request->plot_identification,
+                'company_city_subdivision' => $request->city_sub_division,
+                'company_city' => $request->city,
+                'company_postal' => $request->postal_number,
+                'company_country' => 'SA',
+                'solution_name' => 'MADA',
+                'common_name' => $request->common_name,
+            ]);
+
+            $device->active();
 ```
 
 ### Invoice Creation
@@ -358,27 +368,6 @@ last_hash();                 // Get the last invoice hash (with default)
 - `errors` - Error messages (JSON)
 - `response` - Full response (JSON)
 - `submitted_at` - Submission timestamp
-- `timestamps`
-
-### company_data Table
-
-- `id` - Primary key
-- `solution_name` - Solution name
-- `solution_version` - Solution version
-- `business_category` - Business category
-- `vat_no` - VAT number
-- `ci_no` - Commercial registration number
-- `company_name` - Company name
-- `company_address` - Company address
-- `company_building` - Building number
-- `company_plot_identification` - Plot ID
-- `company_city_subdivision` - City subdivision
-- `company_city` - City
-- `company_postal` - Postal code
-- `company_country` - Country code
-- `company_state` - State
-- `company_phone` - Phone number
-- `company_email` - Email address
 - `timestamps`
 
 ## Security
