@@ -26,7 +26,7 @@ please visit our [documentation](https://raanh-1.gitbook.io/hazem-package).
 Install the package via Composer:
 
 ```bash
-composer require hazem/zatca
+composer require hazem7575/zatca
 ```
 
 ## Requirements
