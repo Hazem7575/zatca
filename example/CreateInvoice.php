@@ -1,12 +1,12 @@
 <?php
 
-use App\Models\Transaction;
+use App\Models\Order;
 
 class CreateInvoice
 {
-    public function submit_invoice(Transaction $transaction) {
+    public function submit_invoice(Order $order) {
         try {
-            $transaction->submitToZatca();
+            $order->submitToZatca();
             return response()->json([
                 'success' => true,
                 'msg' => 'تم ارسال الفاتورة بالفعل للهئية'
