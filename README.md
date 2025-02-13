@@ -370,27 +370,6 @@ last_hash();                 // Get the last invoice hash (with default)
 - `submitted_at` - Submission timestamp
 - `timestamps`
 
-### company_data Table
-
-- `id` - Primary key
-- `solution_name` - Solution name
-- `solution_version` - Solution version
-- `business_category` - Business category
-- `vat_no` - VAT number
-- `ci_no` - Commercial registration number
-- `company_name` - Company name
-- `company_address` - Company address
-- `company_building` - Building number
-- `company_plot_identification` - Plot ID
-- `company_city_subdivision` - City subdivision
-- `company_city` - City
-- `company_postal` - Postal code
-- `company_country` - Country code
-- `company_state` - State
-- `company_phone` - Phone number
-- `company_email` - Email address
-- `timestamps`
-
 ## Security
 
 - Row Level Security (RLS) enabled for all tables
