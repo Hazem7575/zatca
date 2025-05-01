@@ -40,7 +40,12 @@ composer require hazem7575/zatca
 
 ## Configuration
 
+app.php
+```php
+Hazem\Zatca\ZatcaServiceProvider::class,
+```
 1. Publish configuration and migrations:
+
 
 ```bash
 php artisan vendor:publish --provider="Hazem\Zatca\ZatcaServiceProvider"
