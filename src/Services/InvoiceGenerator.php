@@ -46,6 +46,7 @@ class InvoiceGenerator
             'product_tax' => $this->sanitizeAmount($invoiceData['vat_amount']),
             'is_pos' => (bool)$invoiceData['is_pos'],
             'is_invoice' => (bool)$invoiceData['is_invoice'],
+            'is_refund' => (bool)$invoiceData['is_refund'],
             'date' => $this->formatDateTime($carbon),
            // 'seller' => $this->getSellerData(),
             'customer' => $this->getCustomerData($invoiceData)

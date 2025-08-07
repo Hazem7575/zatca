@@ -3,6 +3,7 @@
 namespace Hazem\Zatca\Services;
 
 use Carbon\Carbon;
+use Hazem\Zatca\Enums\InvoiceTypeCode;
 use Hazem\Zatca\Models\ZatcaDevice;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -69,8 +70,6 @@ class ZatcaXMLGenerator
             $invoiceItems,
             $uuid
         );
-
-
 
 
         $invoiceXML = app(ComplianceService::class)->getDefaultSimplifiedTaxInvoice($xmlProperties);
@@ -187,7 +186,7 @@ class ZatcaXMLGenerator
             'details' => $invoiceItems,
             'sale' => $sale,
             'invoice_type' => $invoice->is_pos ? self::POS_INVOICE_TYPE : self::STANDARD_INVOICE_TYPE,
-            'invoice_type_no' => $invoice->is_invoice ? self::INVOICE_TYPE_388 : self::INVOICE_TYPE_383,
+            'invoice_type_no' => $this->getTypeInvoice($invoice),
             'CRN_number_CUSTOMER' => $customer->tax_number,
             'street_CUSTOMER' => $customer->address,
             'building_CUSTOMER' => $customer->building,
@@ -201,6 +200,14 @@ class ZatcaXMLGenerator
         ];
     }
 
+    private function  getTypeInvoice(object $invoice): string
+    {
+        if(isset($invoice->is_refund) AND $invoice->is_refund) return InvoiceTypeCode::CREDIT_NOTE->value;
+        if(isset($invoice->is_invoice) AND $invoice->is_invoice) {
+            return InvoiceTypeCode::STANDARD_TAX_INVOICE->value;
+        }
+        return InvoiceTypeCode::DEBIT_NOTE->value;
+    }
     /**
      * Process and save ZATCA response
      */
@@ -236,9 +243,10 @@ class ZatcaXMLGenerator
         stdClass $customer,
         array $invoiceItems
     ): void {
-        if (empty($invoice->is_pos) || !isset($invoice->is_invoice)) {
-            throw new InvalidArgumentException('Invoice type information is missing');
-        }
+
+//        if (empty($invoice->is_pos) || !isset($invoice->is_invoice)) {
+//            throw new InvalidArgumentException('Invoice type information is missing');
+//        }
 
         if (empty($mInvoice->invoice_no) || empty($mInvoice->total) ||
             empty($mInvoice->grand_total)) {

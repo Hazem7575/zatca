@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Facade;
 use Hazem\Zatca\ZatcaService;
 
 /**
- * @method static \Hazem\Zatca\Services\ZatcaInvoiceService prepare()
+ * @method static array submitInvoice(string|int $businessId, array $invoiceData)
  * @method static array submitSimplifiedInvoice(string|int $businessId, array $invoiceData)
  * @method static array submitStandardInvoice(string|int $businessId, array $invoiceData)
  * @method static array submitCreditNote(string|int $businessId, array $invoiceData)
@@ -18,7 +18,14 @@ use Hazem\Zatca\ZatcaService;
  * @method static \Hazem\Zatca\Models\ZatcaDevice registerDevice(string|int $businessId, string $otp, array $companyData)
  * @method static bool validateInvoice(array $invoiceData)
  * @method static array generateQRCode(array $invoiceData)
+ *
+ * @see \Hazem\Zatca\ZatcaService
+ */
+/**
  * @method static array submitInvoice(string|int $businessId, array $invoiceData , $prev_hash = null)
+ * @method static \Hazem\Zatca\Models\ZatcaDevice registerDevice(string|int $businessId, string $otp)
+ *
+ * @see \Hazem\Zatca\ZatcaService
  */
 class Zatca extends Facade
 {

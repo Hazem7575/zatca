@@ -84,6 +84,7 @@ trait HasZatcaInvoice
             'vat_amount' => $this->vat ?? $this->tax ?? 0,
             'is_pos' => $this->is_pos ?? false,
             'is_invoice' => $this->is_invoice ?? true,
+            'is_refund' => $this->is_refund ?? false,
             'items' => $this->prepareZatcaItems()
         ];
     }
@@ -131,11 +132,36 @@ trait HasZatcaInvoice
                 throw new \Exception('No ZATCA device registered for this model');
             }
 
+
             $result = Zatca::submitInvoice(
                 $device,
                 array_merge($invoiceData, ['uuid' => $uuid ]),
                 $this->last_hash()
             );
+            dd($result);
+
+            if(!$invoiceData['is_pos']) {
+                $order = $this->zatcaOrders()->updateOrCreate([
+                    'orderable_type' => self::class,
+                    'orderable_id' => $this->id,
+                ],[
+                    'invoice_number' => $invoiceData['invoice_number'],
+                    'uuid' => $uuid,
+                    'status' => 1,
+                    'is_reported' => 1,
+                    'qr_code' => $result['qr_code'],
+                    'invoice_hash' => $result['invoice_hash'],
+                    'response' => [],
+                    'submitted_at' => now(),
+                    'is_cleared' => true,
+                ]);
+
+                if(method_exists($this, 'update_last_hash')) {
+                    $this->update_last_hash($result['invoice_hash']);
+                }
+
+                return $order;
+            }
 
             if(isset($result['response']['reportingStatus']) AND $result['response']['reportingStatus'] === 'REPORTED') {
                 $order = $this->zatcaOrders()->updateOrCreate([

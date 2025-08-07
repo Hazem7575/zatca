@@ -18,8 +18,10 @@ class ZatcaServiceProvider extends ServiceProvider
             return new ZatcaService(config('zatca.live', false));
         });
 
+        // Register device service
         $this->app->singleton('zatca.device', function ($app) {
             $live = config('zatca.live', false);
+
             return new DeviceRegistrationService(
                 new CSRGenerator([], $live),
                 new ZatcaAPI($live),

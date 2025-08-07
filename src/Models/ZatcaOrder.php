@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ZatcaOrder extends Model
 {
     protected $table = 'hazem_orders_zatca';
-
+    
     protected $fillable = [
         'orderable_type',
         'orderable_id',
@@ -21,8 +21,8 @@ class ZatcaOrder extends Model
         'warnings',
         'errors',
         'response',
-        'submitted_at',
-        'qr_code'
+        'qr_code',
+        'submitted_at'
     ];
 
     protected $casts = [

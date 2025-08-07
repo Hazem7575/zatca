@@ -42,7 +42,7 @@ class ComplianceService
             throw new Exception('Device is not in active state');
         }
 
-       $this->SendComplianceSamples($device);
+        $this->SendComplianceSamples($device);
     }
     public function SendComplianceSamples(ZatcaDevice $device)
     {
@@ -486,7 +486,7 @@ class ComplianceService
         }
         curl_close ($ch);
 
-      //  file_put_contents('certificate/compliance_invoice_a4_'.$id.'.json', $result);
+        //  file_put_contents('certificate/compliance_invoice_a4_'.$id.'.json', $result);
 
 
     }
@@ -891,7 +891,7 @@ class ComplianceService
         }
         curl_close ($ch);
 
-       // file_put_contents('certificate/compliance_invoice_pos_credit_'.$id.'.json', $result);
+        // file_put_contents('certificate/compliance_invoice_pos_credit_'.$id.'.json', $result);
 
 
     }
@@ -1075,7 +1075,7 @@ class ComplianceService
         }
         curl_close ($ch);
 
-       // file_put_contents('certificate/compliance_invoice_a4_credit_'.$id.'.json', $result);
+        // file_put_contents('certificate/compliance_invoice_a4_credit_'.$id.'.json', $result);
 
 
     }
@@ -1257,7 +1257,7 @@ class ComplianceService
         }
         curl_close ($ch);
 
-       // file_put_contents('certificate/compliance_invoice_pos_debit_'.$id.'.json', $result);
+        // file_put_contents('certificate/compliance_invoice_pos_debit_'.$id.'.json', $result);
 
 
     }
@@ -1441,7 +1441,7 @@ class ComplianceService
         }
         curl_close ($ch);
 
-       // file_put_contents('certificate/compliance_invoice_a4_debit_'.$id.'.json', $result);
+        // file_put_contents('certificate/compliance_invoice_a4_debit_'.$id.'.json', $result);
 
     }
     public function generateCSID(){

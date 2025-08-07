@@ -40,6 +40,7 @@ class InvoiceService
     public function prepareInvoiceData($invoiceObj)
     {
         try {
+
             // Create invoice object with customer details
             $invoice = $this->createInvoiceObject($invoiceObj);
 
@@ -57,7 +58,6 @@ class InvoiceService
 
             // Generate XML invoice
             $xmlInvoice = $this->complianceService->getDefaultSimplifiedTaxInvoice($props);
-
             // Sign and submit invoice
             $result = $this->signAndSubmitInvoice(
                 $xmlInvoice,
