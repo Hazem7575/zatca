@@ -138,7 +138,6 @@ trait HasZatcaInvoice
                 array_merge($invoiceData, ['uuid' => $uuid ]),
                 $this->last_hash()
             );
-            dd($result);
 
             if(!$invoiceData['is_pos']) {
                 $order = $this->zatcaOrders()->updateOrCreate([
