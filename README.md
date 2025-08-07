@@ -2,51 +2,79 @@
 
 ZATCA (Fatoora) e-invoicing implementation for Saudi Arabia.
 
-## المحتويات
-- [التثبيت](#التثبيت)
-- [الإعداد](#الإعداد)
-- [الاستخدام الأساسي](#الاستخدام-الأساسي)
-- [إرسال الفواتير](#إرسال-الفواتير)
-- [تخصيص البيانات](#تخصيص-البيانات)
-- [التحقق من حالة الفواتير](#التحقق-من-حالة-الفواتير)
-- [هيكل قاعدة البيانات](#هيكل-قاعدة-البيانات)
+## Contents
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Service Provider](#service-provider)
+- [Basic Usage](#basic-usage)
+- [Submitting Invoices](#submitting-invoices)
+- [Customizing Data](#customizing-data)
+- [Checking Invoice Status](#checking-invoice-status)
+- [Database Structure](#database-structure)
+- [Testing](#testing)
+- [API Reference](#api-reference)
 
-## التثبيت
+## Installation
 
-يمكنك تثبيت الحزمة عبر Composer:
+You can install the package via Composer:
 
 ```bash
 composer require hazem/zatca
 ```
 
-## الإعداد
+## Configuration
 
-1. نشر ملفات الإعداد والترحيل:
+1. Publish configuration and migration files:
 
 ```bash
 php artisan vendor:publish --provider="Hazem\Zatca\ZatcaServiceProvider"
 ```
 
-2. تشغيل الترحيلات:
+2. Run migrations:
 
 ```bash
 php artisan migrate
 ```
 
-3. إعداد متغيرات البيئة في ملف `.env`:
+3. Set environment variables in your `.env` file:
 
 ```env
 ZATCA_LIVE=false
-ZATCA_VAT_NO=
-ZATCA_COMPANY_NAME=
-# ... باقي الإعدادات
 ```
 
-## الاستخدام الأساسي
+## Service Provider
 
-### إضافة السمات للنموذج
+The package automatically registers the `ZatcaServiceProvider` in your application. The provider registers the following services:
 
-أضف السمات `HasZatcaDevice` و `HasZatcaInvoice` إلى النموذج الخاص بك:
+### Registered Services
+
+- `zatca` - Main ZATCA service singleton
+- `zatca.device` - Device registration service
+- `Hazem\Zatca\Facades\Zatca` - ZATCA facade
+- `Hazem\Zatca\Facades\Device` - Device facade
+
+### Manual Registration (Laravel 11+)
+
+For Laravel 11+ applications, you need to manually register the provider in `bootstrap/providers.php`:
+
+```php
+<?php
+
+return [
+    // end line
+    Hazem\Zatca\ZatcaServiceProvider::class,
+];
+```
+
+### Laravel 10 and Below
+
+For Laravel 10 and below, the provider is automatically registered via `composer.json` autoload.
+
+## Basic Usage
+
+### Adding Traits to Your Model
+
+Add the `HasZatcaDevice` and `HasZatcaInvoice` traits to your model:
 
 ```php
 use Hazem\Zatca\Traits\HasZatcaDevice;
@@ -54,42 +82,51 @@ use Hazem\Zatca\Traits\HasZatcaInvoice;
 
 class Order extends Model
 {
-    use HasZatcaDevice, HasZatcaInvoice;
+    use HasZatcaInvoice;
 }
 ```
 
-### تسجيل جهاز جديد
+### Registering a New Device
 
 ```php
-$order = Order::find(1);
-$device = $order->registerZatcaDevice($otp, [
-    'vat_no' => '123456789',
-    'company_name' => 'شركتي',
-    // ... باقي البيانات
+$user = User::find(1);
+$device = $user->registerZatcaDevice($otp, [
+    'vat_no' => '399999999900003', // this number for sandbox
+    'ci_no' => '1234567891',
+    'company_name' => 'Your Company',
+    'company_address' => 'Riyadh',
+    'company_building' => '1234',
+    'company_plot_identification' => '1234',
+    'company_city_subdivision' => '1234',
+    'company_city' => 'Riyadh',
+    'company_postal' => '12345',
+    'company_country' => 'SA',
+    'solution_name' => 'Your Solution',
+    'common_name' => 'Your Common Name',
 ]);
 ```
 
-## إرسال الفواتير
+## Submitting Invoices
 
-### الطريقة الأساسية
+### Basic Method
 
 ```php
 $order = Order::find(1);
 $result = $order->submitToZatca();
 ```
 
-### تخصيص البيانات
+### Customizing Data
 
 ```php
 $result = $order->submitToZatca([
     'invoice_number' => 'INV-001',
-    'buyer_name' => 'عميل',
+    'buyer_name' => 'Customer',
     'buyer_vat' => '1234567890',
     'total_amount' => 100,
     'vat_amount' => 15,
     'items' => [
         [
-            'name' => 'منتج 1',
+            'name' => 'Product 1',
             'quantity' => 1,
             'price' => 100,
             'vat' => 15
@@ -98,9 +135,26 @@ $result = $order->submitToZatca([
 ]);
 ```
 
-### تخصيص إعداد البيانات
+### Using Zatca Facade
 
-يمكنك تجاوز الطرق الافتراضية في النموذج الخاص بك:
+You can also use the Zatca facade for direct invoice submission:
+
+```php
+use Hazem\Zatca\Facades\Zatca;
+
+// Submit standard invoice
+$result = Zatca::submitStandardInvoice($businessId, $invoiceData);
+
+// Submit simplified invoice
+$result = Zatca::submitSimplifiedInvoice($businessId, $invoiceData);
+
+// Submit credit note
+$result = Zatca::submitCreditNote($businessId, $invoiceData);
+```
+
+### Customizing Data Preparation
+
+You can override the default methods in your model:
 
 ```php
 class Order extends Model
@@ -109,10 +163,25 @@ class Order extends Model
 
     protected function prepareZatcaInvoiceData()
     {
+        $items = $this->prepareZatcaItems();
         return [
-            'invoice_number' => $this->custom_number,
-            'buyer_name' => $this->client->name,
-            // ... باقي البيانات المخصصة
+            // Required fields
+            'invoice_number' => rand(100000, 999999),
+            'total_amount' => 115.00,
+            'vat_amount' => 15.00,
+            'is_pos' => false,
+            'is_invoice' => false,
+            'is_refund' => true,
+            'items' => $items,
+            'date' => now()->format('Y-m-d H:i:s'),
+            'buyer_name' => 'Testing',
+            // Optional buyer information
+            'buyer_tax_number' => null,
+            'buyer_address' => null,
+            'buyer_city' => null,
+            'buyer_state' => null,
+            'buyer_postal' => null,
+            'buyer_building_no' => null
         ];
     }
 
@@ -130,83 +199,194 @@ class Order extends Model
 }
 ```
 
-## التحقق من حالة الفواتير
+## Invoice Types and Subtypes
+
+The package supports different invoice types and subtypes:
+
+### Invoice Types (InvoiceTypeCode enum)
+- `STANDARD_TAX_INVOICE` (388) - Standard Tax Invoice (B2B)
+- `DEBIT_NOTE` (383) - Tax Invoice Debit Note
+- `CREDIT_NOTE` (381) - Tax Invoice Credit Note
+- `PREPAYMENT_INVOICE` (386) - Prepayment Invoice
+
+### Invoice Subtypes (InvoiceSubtype enum)
+- `STANDARD` (01) - Standard/Tax Invoice (B2B, B2G)
+- `SIMPLIFIED` (02) - Simplified Invoice (B2C)
+
+## Checking Invoice Status
 
 ```php
-// التحقق من إرسال الفاتورة
+// Check if invoice was submitted
 if ($order->isSubmittedToZatca()) {
-    // تم الإرسال
+    // Invoice was submitted
 }
 
-// الحصول على حالة الفاتورة
+// Get invoice status
 $status = $order->getZatcaStatus();
 
-// التحقق من وجود أخطاء
+// Check for errors
 if ($order->hasZatcaErrors()) {
     $errors = $order->getZatcaErrors();
 }
 ```
 
-## هيكل قاعدة البيانات
+## Database Structure
 
-### جدول `hazem_devices_zatca`
+### `hazem_devices_zatca` Table
 
-يخزن معلومات الأجهزة المسجلة:
+Stores registered device information:
 
-- `id` - معرف تسلسلي
-- `deviceable_type` - نوع النموذج المرتبط
-- `deviceable_id` - معرف النموذج المرتبط
-- `request_id` - معرف الطلب من ZATCA
-- `disposition_message` - رسالة الحالة
-- `binary_security_token` - رمز الأمان
-- `secret` - المفتاح السري
-- `errors` - الأخطاء (JSON)
-- `private_key` - المفتاح الخاص
-- `public_key` - المفتاح العام
-- `csr_content` - محتوى CSR
+- `id` - Serial identifier
+- `deviceable_type` - Related model type
+- `deviceable_id` - Related model ID
+- `request_id` - ZATCA request ID
+- `disposition_message` - Status message
+- `binary_security_token` - Security token
+- `secret` - Secret key
+- `errors` - Errors (JSON)
+- `private_key` - Private key
+- `public_key` - Public key
+- `csr_content` - CSR content
 
-### جدول `hazem_orders_zatca`
+### `hazem_orders_zatca` Table
 
-يخزن معلومات الفواتير المرسلة:
+Stores submitted invoice information:
 
-- `id` - معرف تسلسلي
-- `orderable_type` - نوع النموذج المرتبط
-- `orderable_id` - معرف النموذج المرتبط
-- `invoice_number` - رقم الفاتورة
-- `uuid` - معرف فريد
-- `invoice_hash` - هاش الفاتورة
-- `signed_invoice_xml` - XML الموقع
-- `status` - حالة الفاتورة
-- `is_reported` - تم الإبلاغ
-- `is_cleared` - تم المقاصة
-- `warnings` - التحذيرات (JSON)
-- `errors` - الأخطاء (JSON)
-- `response` - الرد الكامل (JSON)
-- `submitted_at` - وقت الإرسال
+- `id` - Serial identifier
+- `orderable_type` - Related model type
+- `orderable_id` - Related model ID
+- `invoice_number` - Invoice number
+- `uuid` - Unique identifier
+- `invoice_hash` - Invoice hash
+- `signed_invoice_xml` - Signed XML
+- `status` - Invoice status
+- `is_reported` - Reported status
+- `is_cleared` - Cleared status
+- `warnings` - Warnings (JSON)
+- `errors` - Errors (JSON)
+- `response` - Complete response (JSON)
+- `submitted_at` - Submission timestamp
 
-## الدوال المتاحة
+## Testing
 
-### HasZatcaDevice Trait
+The package includes comprehensive unit tests for all major components:
 
-- `zatcaDevice()` - علاقة مع جهاز ZATCA
-- `registerZatcaDevice()` - تسجيل جهاز جديد
-- `hasZatcaDevice()` - التحقق من وجود جهاز
-- `getLatestZatcaDevice()` - الحصول على آخر جهاز
+### Running Tests
 
-### HasZatcaInvoice Trait
+```bash
+# Run all tests
+php artisan test
 
-- `zatcaOrders()` - علاقة مع فواتير ZATCA
-- `latestZatcaOrder()` - آخر فاتورة
-- `submitToZatca()` - إرسال فاتورة
-- `isSubmittedToZatca()` - التحقق من الإرسال
-- `getZatcaStatus()` - حالة الفاتورة
-- `hasZatcaErrors()` - التحقق من الأخطاء
-- `getZatcaErrors()` - الحصول على الأخطاء
+# Run specific test file
+php artisan test tests/Unit/ZatcaControllerTest.php
 
-## المساهمة
+# Run with coverage
+php artisan test --coverage
+```
 
-نرحب بالمساهمات! يرجى إرسال pull requests إلى مستودع GitHub.
+### Test Structure
 
-## الترخيص
+- `tests/Unit/ZatcaControllerTest.php` - Controller tests
+- `tests/Unit/OrderTest.php` - Order model tests
+- `tests/Unit/UserTest.php` - User model tests
 
-مرخص تحت MIT License.
+### Example Test
+
+```php
+class ZatcaControllerTest extends TestCase
+{
+    public function test_device_registration()
+    {
+        $user = User::factory()->create();
+        
+        $device = $user->registerZatcaDevice(123456, [
+            'vat_no' => '399999999900003',
+            'company_name' => 'Test Company',
+            // ... other data
+        ]);
+        
+        $this->assertNotNull($device);
+        $this->assertTrue($user->hasZatcaDevice());
+    }
+}
+```
+
+## API Reference
+
+### Available Methods
+
+#### HasZatcaDevice Trait
+
+- `zatcaDevice()` - Relationship with ZATCA device
+- `registerZatcaDevice($otp, $data)` - Register new device
+- `hasZatcaDevice()` - Check if device exists
+- `getLatestZatcaDevice()` - Get latest device
+
+#### HasZatcaInvoice Trait
+
+- `zatcaOrders()` - Relationship with ZATCA invoices
+- `latestZatcaOrder()` - Latest invoice
+- `submitToZatca($data = null)` - Submit invoice
+- `isSubmittedToZatca()` - Check submission status
+- `getZatcaStatus()` - Get invoice status
+- `hasZatcaErrors()` - Check for errors
+- `getZatcaErrors()` - Get errors
+
+#### Zatca Facade
+
+- `submitInvoice($businessId, $data)` - Submit invoice with automatic type detection
+- `submitSimplifiedInvoice($businessId, $data)` - Submit simplified invoice
+- `submitStandardInvoice($businessId, $data)` - Submit standard invoice
+- `submitCreditNote($businessId, $data)` - Submit credit note
+
+#### Device Facade
+
+- `register($otp, $data)` - Register new device
+- `getStatus($deviceId)` - Get device status
+- `getCertificate($deviceId)` - Get device certificate
+
+### Services
+
+The package includes several services for different functionalities:
+
+- `ComplianceService` - Handles compliance checks
+- `DeviceRegistrationService` - Handles device registration
+- `InvoiceGenerator` - Generates invoice data
+- `InvoiceService` - Main invoice service
+- `ZatcaAPI` - ZATCA API communication
+- `ZatcaXMLGenerator` - Generates XML for invoices
+- `CSRGenerator` - Generates Certificate Signing Requests
+- `InvoiceSigner` - Signs invoices with certificates
+
+### Configuration Options
+
+```php
+// config/zatca.php
+return [
+    'live' => env('ZATCA_LIVE', false),
+];
+```
+
+## Error Handling
+
+The package provides comprehensive error handling:
+
+```php
+try {
+    $result = $order->submitToZatca();
+} catch (\Hazem\Zatca\Exceptions\ZatcaException $e) {
+    // Handle ZATCA specific errors
+    Log::error('ZATCA Error: ' . $e->getMessage());
+} catch (\Exception $e) {
+    // Handle general errors
+    Log::error('General Error: ' . $e->getMessage());
+}
+```
+
+## Contributing
+
+We welcome contributions! Please send pull requests to the GitHub repository.
+
+## License
+
+Licensed under MIT License.
