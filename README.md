@@ -32,9 +32,9 @@ A complete service for integrating with the Saudi Arabia E-Invoicing System (Fat
 ---
 
 ## 🔗 روابط مهمة | Important Links
-### 📚 [الدليل التفصيلي للتثبيت والإعداد | Detailed Installation Guide](https://phphubx.com/zatca/installation)
-### 💰 [باقات الأسعار | Pricing Packages](https://phphubx.com/zatca/pricing)
-### 📞 [تواصل معنا | Contact Us](https://phphubx.com/zatca/contact)
+### 📚 [الدليل التفصيلي للتثبيت والإعداد | Detailed Installation Guide](https://docs.phphubx.com/zatca/installation)
+### 💰 [باقات الأسعار | Pricing Packages](https://docs.phphubx.com/zatca/pricing)
+### 📞 [تواصل معنا | Contact Us](https://docs.phphubx.com/zatca/contact)
 
 ---
 
@@ -55,9 +55,9 @@ A complete service for integrating with the Saudi Arabia E-Invoicing System (Fat
 ---
 
 ## 🚀 البدء السريع | Quick Start
-زيارة [صفحة التثبيت](https://phphubx.com/zatca/installation) للحصول على دليل خطوة بخطوة.
+زيارة [صفحة التثبيت](https://docs.phphubx.com/zatca/installation) للحصول على دليل خطوة بخطوة.
 
-Visit the [Installation Page](https://phphubx.com/zatca/installation) for a step-by-step guide.
+Visit the [Installation Page](https://docs.phphubx.com/zatca/installation) for a step-by-step guide.
 
 ---
 
